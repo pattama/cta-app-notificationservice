@@ -11,13 +11,24 @@ require('sinon-as-promised');
 const mockrequire = require('mock-require');
 const nodepath = require('path');
 
+const Logger = require('cta-logger');
 const AfterHandler = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/', 'index.js'));
-const config = {
+const DEFAULTCONFIG = {
   name: 'afterhandler',
   module: '../../lib/index',
   properties: {},
   publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
 };
 
 describe('AfterHandler - constructor', function() {
@@ -55,7 +66,7 @@ describe('AfterHandler - constructor', function() {
       // returns Array of mocked providers directories
       sinon.stub(fs, 'readdirSync').returns(Array.from(mockProviders.keys()));
 
-      afterHandler = new AfterHandler({}, config);
+      afterHandler = new AfterHandler(DEFAULTCEMENTHELPER, DEFAULTCONFIG);
     });
 
     after(function() {
@@ -69,7 +80,7 @@ describe('AfterHandler - constructor', function() {
 
     it('should instantiate a new provider instance per loaded provider', function() {
       mockProviders.forEach((value, key) => {
-        expect(value.MockConstructor.called).to.equal(true);
+        expect(value.MockConstructor.calledWith(afterHandler.cementHelper, afterHandler.logger)).to.equal(true);
         expect(afterHandler.providers.has(key)).to.equal(true);
         expect(afterHandler.providers.get(key)).to.equal(value.MockConstructor.returnValues[0]);
       });
@@ -94,7 +105,7 @@ describe('AfterHandler - constructor', function() {
 
     it('should throw a fs error', function() {
       return expect(function() {
-        return new AfterHandler({}, config);
+        return new AfterHandler({}, DEFAULTCONFIG);
       }).to.throw(Error, 'loading providers failed: ' + mockReaddirSyncError.message);
     });
   });
@@ -131,7 +142,7 @@ describe('AfterHandler - constructor', function() {
 
     it('should throw a provider instantiation error', function() {
       return expect(function() {
-        return new AfterHandler({}, config);
+        return new AfterHandler({}, DEFAULTCONFIG);
       }).to.throw(Error, 'loading providers failed: ' + mockProviderError.message);
     });
   });

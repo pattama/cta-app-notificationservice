@@ -10,16 +10,35 @@ const _ = require('lodash');
 
 const EmailHelper = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers/email', 'emailhelper'));
+const Logger = require('cta-logger');
+const DEFAULTCONFIG = {
+  name: 'afterhandler',
+  module: '../../lib/index',
+  properties: {},
+  publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
+};
+const configuration = require('./configuration.testdata.js');
 const afterhandlerJob = require('./job.afterhandler.email.sample.testdata.js');
 
 describe('AfterHandler - Email - EmailHelper - validate', function() {
-  context('when missing/incorrect \'template\' String property in job payload', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      emailHelper = new EmailHelper(templates);
-    });
+  let emailHelper;
+  const templates = new Map();
+  before(function() {
+    templates.set('a-template', {});
+    emailHelper = new EmailHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration, templates);
+  });
 
+  context('when missing/incorrect \'template\' String property in job payload', function() {
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.template = {};
@@ -29,12 +48,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when job.payload.template is not supported by Email AfterHandler', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.template = 'not-a-supported-template';
@@ -44,13 +57,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when missing/incorrect \'data\' Object property in job payload', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.data = null;
@@ -60,13 +66,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when missing/incorrect \'subject\' String property in job payload data', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.data.subject = null;
@@ -77,13 +76,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when missing/incorrect \'mailerConfiguration\' Object property in job payload', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.mailerConfiguration = null;
@@ -94,13 +86,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when missing/incorrect \'from\' String property in job payload mailerConfiguration', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.mailerConfiguration.from = null;
@@ -111,13 +96,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when missing/incorrect \'to\' String property in job payload mailerConfiguration', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.mailerConfiguration.to = null;
@@ -128,13 +106,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when missing/incorrect \'smtpServer\' String property in job payload mailerConfiguration', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.mailerConfiguration.smtpServer = null;
@@ -145,13 +116,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when incorrect \'cc\' String property in job payload mailerConfiguration', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.mailerConfiguration.cc = null;
@@ -162,13 +126,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when incorrect \'ignoreTLS\' String property in job payload mailerConfiguration', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.mailerConfiguration.ignoreTLS = null;
@@ -179,13 +136,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when incorrect \'debug\' String property in job payload mailerConfiguration', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should reject with an error', function() {
       const job = _.cloneDeep(afterhandlerJob);
       job.payload.mailerConfiguration.debug = null;
@@ -196,13 +146,6 @@ describe('AfterHandler - Email - EmailHelper - validate', function() {
   });
 
   context('when all properties are valid', function() {
-    let emailHelper;
-    const templates = new Map();
-    before(function() {
-      templates.set('a-template', {});
-      emailHelper = new EmailHelper(templates);
-    });
-
     it('should resolve', function() {
       const job = _.cloneDeep(afterhandlerJob);
       const validatePromise = emailHelper.validate(job);

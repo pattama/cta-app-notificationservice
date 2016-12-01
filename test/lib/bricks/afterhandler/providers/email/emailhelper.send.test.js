@@ -15,6 +15,25 @@ const smtppool = require('nodemailer-smtp-pool');
 
 const EmailHelperPath = nodepath.join(appRootPath, '/lib/bricks/afterhandler/providers/email/emailhelper');
 let EmailHelper = require(EmailHelperPath);
+const Logger = require('cta-logger');
+const DEFAULTCONFIG = {
+  name: 'afterhandler',
+  module: '../../lib/index',
+  properties: {},
+  publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
+};
+const configuration = require('./configuration.testdata.js');
+
 const subject = 'TDD tests - AfterHandler - Email - send';
 const content = `This is a <s>spam</s>test.</br> If you received this,
      it probably means the sendMail method has not been mocked properly...
@@ -47,7 +66,7 @@ describe('AfterHandler - Email - EmailHelper - send', function() {
     let mockTransport;
     const mockSendMailResponse = { ok: 1 };
     let emailHelper;
-    const template = new Map();
+    const templates = new Map();
     let sendPromise;
     before(function() {
       // stubing the nodemailer-smpt-pool module (an exported method) required in EmailHelper class
@@ -70,7 +89,7 @@ describe('AfterHandler - Email - EmailHelper - send', function() {
         callback(null, mockSendMailResponse);
       });
 
-      emailHelper = new EmailHelper(template);
+      emailHelper = new EmailHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration, templates);
       sendPromise = emailHelper.send(subject, content, mailerConfiguration);
     });
 
@@ -101,7 +120,7 @@ describe('AfterHandler - Email - EmailHelper - send', function() {
     let mockSmtpPoolError;
     let stubSmtpPoolModule;
     let emailHelper;
-    const template = new Map();
+    const templates = new Map();
     let sendPromise;
     before(function() {
       // stubing the nodemailer-smpt-pool module (an exported method) required in EmailHelper class
@@ -111,7 +130,7 @@ describe('AfterHandler - Email - EmailHelper - send', function() {
       requireSubvert.subvert('nodemailer-smtp-pool', stubSmtpPoolModule);
       EmailHelper = requireSubvert.require(EmailHelperPath);
 
-      emailHelper = new EmailHelper(template);
+      emailHelper = new EmailHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration, templates);
       sendPromise = emailHelper.send(subject, content, mailerConfiguration);
     });
 
@@ -129,7 +148,7 @@ describe('AfterHandler - Email - EmailHelper - send', function() {
     let stubSmtpPoolModule;
     let mockTransportError;
     let emailHelper;
-    const template = new Map();
+    const templates = new Map();
     let sendPromise;
     before(function() {
       // stubing the nodemailer-smpt-pool module (an exported method) required in EmailHelper class
@@ -144,7 +163,7 @@ describe('AfterHandler - Email - EmailHelper - send', function() {
       mockTransportError = new Error('mock createTransport error');
       sinon.stub(nodemailer, 'createTransport').throws(mockTransportError);
 
-      emailHelper = new EmailHelper(template);
+      emailHelper = new EmailHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration, templates);
       sendPromise = emailHelper.send(subject, content, mailerConfiguration);
     });
 
@@ -164,7 +183,7 @@ describe('AfterHandler - Email - EmailHelper - send', function() {
     let mockTransport;
     const mockSendMailError = new Error('mock sendMail error');
     let emailHelper;
-    const template = new Map();
+    const templates = new Map();
     let sendPromise;
     before(function() {
       // stubing the nodemailer-smpt-pool module (an exported method) required in EmailHelper class
@@ -187,7 +206,7 @@ describe('AfterHandler - Email - EmailHelper - send', function() {
         callback(mockSendMailError, null);
       });
 
-      emailHelper = new EmailHelper(template);
+      emailHelper = new EmailHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration, templates);
       sendPromise = emailHelper.send(subject, content, mailerConfiguration);
     });
 

@@ -10,12 +10,30 @@ const _ = require('lodash');
 
 const HttpHelper = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers/http', 'httphelper'));
+const Logger = require('cta-logger');
+const DEFAULTCONFIG = {
+  name: 'afterhandler',
+  module: '../../lib/index',
+  properties: {},
+  publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
+};
+const configuration = require('./configuration.testdata.js');
 const afterhandlerJob = require('./job.afterhandler.http.sample.testdata.js');
 
 describe('AfterHandler - Http - HttpHelper - validate', function() {
   let httpHelper;
   before(function() {
-    httpHelper = new HttpHelper();
+    httpHelper = new HttpHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
   });
   context('when all properties are valid', function() {
     it('should resolve', function() {

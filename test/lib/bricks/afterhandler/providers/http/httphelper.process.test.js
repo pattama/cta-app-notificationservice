@@ -15,12 +15,30 @@ const nock = require('nock');
 const HttpHelperPath = nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers/http', 'httphelper');
 let HttpHelper = require(HttpHelperPath);
+const Logger = require('cta-logger');
+const DEFAULTCONFIG = {
+  name: 'afterhandler',
+  module: '../../lib/index',
+  properties: {},
+  publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
+};
+const configuration = require('./configuration.testdata.js');
 const afterhandlerJob = require('./job.afterhandler.http.sample.testdata.js');
 
 describe('AfterHandler - Http - HttpHelper - process', function() {
   let httpHelper;
   before(function() {
-    httpHelper = new HttpHelper();
+    httpHelper = new HttpHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
   });
   context('when request() succeeds', function() {
     context('GET - statusCode is ok', function() {
@@ -95,7 +113,7 @@ describe('AfterHandler - Http - HttpHelper - process', function() {
       stubRequest = sinon.stub().callsArgWith(1, mockRequestError);
       requireSubvert.subvert('request', stubRequest);
       HttpHelper = requireSubvert.require(HttpHelperPath);
-      stubHttpHelper = new HttpHelper();
+      stubHttpHelper = new HttpHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
     });
     after(function() {
       requireSubvert.cleanUp();

@@ -10,14 +10,31 @@ require('sinon-as-promised');
 const requireSubvert = require('require-subvert')(__dirname);
 const nodepath = require('path');
 
+const Base = require(nodepath.join(appRootPath,
+  '/lib/bricks/afterhandler/providers', 'base'));
 let Http = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers', 'http'));
 const HttpHelper = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers/http', 'httphelper'));
-const logger = require('cta-logger');
-
+const Logger = require('cta-logger');
+const DEFAULTCONFIG = {
+  name: 'afterhandler',
+  module: '../../lib/index',
+  properties: {},
+  publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
+};
 const configuration = require('./configuration.testdata.js');
-const DEFAULTLOGGER = logger();
+
 describe('AfterHandler - Http - constructor', function() {
   let StubHelper;
   let stubHelperInstance;
@@ -25,7 +42,7 @@ describe('AfterHandler - Http - constructor', function() {
   before(function() {
     // stubing and spying the HttpHelper Class required in Http class
     // returns a mocked HttpHelper
-    stubHelperInstance = new HttpHelper();
+    stubHelperInstance = new HttpHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
     StubHelper = sinon.stub().returns(stubHelperInstance);
     requireSubvert.subvert(
       nodepath.join(appRootPath, '/lib/bricks/afterhandler/providers/http/httphelper'),
@@ -33,15 +50,15 @@ describe('AfterHandler - Http - constructor', function() {
     Http = requireSubvert.require(
       nodepath.join(appRootPath, '/lib/bricks/afterhandler/providers/http'));
 
-    http = new Http(configuration, DEFAULTLOGGER);
+    http = new Http(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
   });
   context('when everything ok', function() {
-    it('should be a new AfterHandler Http instance', function() {
-      expect(http).to.be.an.instanceOf(Http);
+    it('should extend Base Provider', function() {
+      expect(Object.getPrototypeOf(Http)).to.equal(Base);
     });
 
-    it('should have a logger instance', function() {
-      expect(http).to.have.property('logger', DEFAULTLOGGER);
+    it('should be a new AfterHandler Http instance', function() {
+      expect(http).to.be.an.instanceOf(Http);
     });
 
     describe('_configure', function() {
@@ -52,6 +69,7 @@ describe('AfterHandler - Http - constructor', function() {
     });
 
     it('should have a HttpHelper instance', function() {
+      expect(StubHelper.calledWithExactly(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration)).to.equal(true);
       expect(http).to.have.property('httpHelper').and.to.be.an.instanceof(HttpHelper);
       expect(http.httpHelper).to.equal(stubHelperInstance);
     });
@@ -61,7 +79,7 @@ describe('AfterHandler - Http - constructor', function() {
 describe('AfterHandler - Http - validate', function() {
   let http;
   before(function() {
-    http = new Http(configuration, DEFAULTLOGGER);
+    http = new Http(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
   });
 
   describe('validate', function() {

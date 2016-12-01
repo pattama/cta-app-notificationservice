@@ -11,15 +11,29 @@ const nodepath = require('path');
 
 const Http = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers', 'http'));
-const logger = require('cta-logger');
-
+const Logger = require('cta-logger');
+const DEFAULTCONFIG = {
+  name: 'afterhandler',
+  module: '../../lib/index',
+  properties: {},
+  publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
+};
 const configuration = require('./configuration.testdata.js');
-const DEFAULTLOGGER = logger();
 
 describe('AfterHandler - Http - process', function() {
   let http;
   before(function() {
-    http = new Http(configuration, DEFAULTLOGGER);
+    http = new Http(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
   });
 
   context('when httpHelper process resolves', function() {

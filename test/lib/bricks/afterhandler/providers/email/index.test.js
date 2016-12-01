@@ -13,14 +13,31 @@ const nodepath = require('path');
 const fs = require('fs');
 const ejs = require('ejs');
 
+const Base = require(nodepath.join(appRootPath,
+  '/lib/bricks/afterhandler/providers', 'base'));
 let Email = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers', 'email'));
 const EmailHelper = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers/email', 'emailhelper'));
-const logger = require('cta-logger');
-
+const Logger = require('cta-logger');
+const DEFAULTCONFIG = {
+  name: 'afterhandler',
+  module: '../../lib/index',
+  properties: {},
+  publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
+};
 const configuration = require('./configuration.testdata.js');
-const DEFAULTLOGGER = logger();
+
 describe('AfterHandler - Email - constructor', function() {
   context('when everything ok', function() {
     let StubEmailHelper;
@@ -34,7 +51,7 @@ describe('AfterHandler - Email - constructor', function() {
 
       // stubing and spying the EmailHelper Class required in Email class
       // returns a mocked EmailHelper
-      mockEmailHelperInstance = new EmailHelper(new Map());
+      mockEmailHelperInstance = new EmailHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration, new Map());
       StubEmailHelper = sinon.stub().returns(mockEmailHelperInstance);
       requireSubvert.subvert(
         nodepath.join(appRootPath, '/lib/bricks/afterhandler/providers/email/emailhelper'),
@@ -70,7 +87,7 @@ describe('AfterHandler - Email - constructor', function() {
         return compiled;
       });
 
-      email = new Email(configuration, DEFAULTLOGGER);
+      email = new Email(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
     });
 
     after(function() {
@@ -80,12 +97,12 @@ describe('AfterHandler - Email - constructor', function() {
       ejs.compile.restore();
     });
 
-    it('should be a new AfterHandler Email instance', function() {
-      expect(email).to.be.an.instanceOf(Email);
+    it('should extend Base Provider', function() {
+      expect(Object.getPrototypeOf(Email)).to.equal(Base);
     });
 
-    it('should have a logger instance', function() {
-      expect(email).to.have.property('logger', DEFAULTLOGGER);
+    it('should be a new AfterHandler Email instance', function() {
+      expect(email).to.be.an.instanceOf(Email);
     });
 
     describe('_configure', function() {
@@ -124,7 +141,7 @@ describe('AfterHandler - Email - constructor', function() {
     });
 
     it('should have a EmailHelper instance', function() {
-      expect(StubEmailHelper.calledWithExactly(email.templates)).to.equal(true);
+      expect(StubEmailHelper.calledWithExactly(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration, email.templates)).to.equal(true);
       expect(email).to.have.property('emailHelper').and.to.be.an.instanceof(EmailHelper);
       expect(email.emailHelper).to.equal(mockEmailHelperInstance);
     });
@@ -166,7 +183,7 @@ describe('AfterHandler - Email - constructor', function() {
         });
 
         sinon.spy(DEFAULTLOGGER, 'warn');
-        email = new Email(configuration, DEFAULTLOGGER);
+        email = new Email(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
       });
 
       after(function() {
@@ -246,7 +263,7 @@ describe('AfterHandler - Email - constructor', function() {
 describe('AfterHandler - Email - validate', function() {
   let email;
   before(function() {
-    email = new Email(configuration, DEFAULTLOGGER);
+    email = new Email(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
   });
 
   describe('validate', function() {

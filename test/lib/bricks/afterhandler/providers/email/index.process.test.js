@@ -11,7 +11,23 @@ const nodepath = require('path');
 
 const Email = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers', 'email'));
-
+const Logger = require('cta-logger');
+const DEFAULTCONFIG = {
+  name: 'afterhandler',
+  module: '../../lib/index',
+  properties: {},
+  publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
+};
 const configuration = require('./configuration.testdata.js');
 const afterhandlerJob = require('./job.afterhandler.email.sample.testdata.js');
 
@@ -22,7 +38,7 @@ describe('AfterHandler - Email - process', function() {
     const mockSendPromise = { ok: 1 };
     let processPromise;
     before(function() {
-      email = new Email(configuration);
+      email = new Email(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
       sinon.stub(email.emailHelper, 'render').resolves(mockRenderPromise);
       sinon.stub(email.emailHelper, 'send').resolves(mockSendPromise);
       processPromise = email.process(afterhandlerJob);
@@ -55,7 +71,7 @@ describe('AfterHandler - Email - process', function() {
     const mockSendPromise = { ok: 1 };
     let processPromise;
     before(function() {
-      email = new Email(configuration);
+      email = new Email(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
       sinon.stub(email.emailHelper, 'render').rejects(mockRenderError);
       sinon.stub(email.emailHelper, 'send').resolves(mockSendPromise);
       processPromise = email.process(afterhandlerJob);
@@ -77,7 +93,7 @@ describe('AfterHandler - Email - process', function() {
     const mockSendError = new Error('mock send error');
     let processPromise;
     before(function() {
-      email = new Email(configuration);
+      email = new Email(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration);
       sinon.stub(email.emailHelper, 'render').resolves(mockRenderPromise);
       sinon.stub(email.emailHelper, 'send').rejects(mockSendError);
       processPromise = email.process(afterhandlerJob);

@@ -10,6 +10,24 @@ const ejs = require('ejs');
 
 const EmailHelper = require(nodepath.join(appRootPath,
   '/lib/bricks/afterhandler/providers/email', 'emailhelper'));
+const Logger = require('cta-logger');
+const DEFAULTCONFIG = {
+  name: 'afterhandler',
+  module: '../../lib/index',
+  properties: {},
+  publish: [],
+};
+const DEFAULTLOGGER = new Logger(null, null, DEFAULTCONFIG.name);
+const DEFAULTCEMENTHELPER = {
+  constructor: {
+    name: 'CementHelper',
+  },
+  brickName: DEFAULTCONFIG.name,
+  dependencies: {
+    logger: DEFAULTLOGGER,
+  },
+};
+const configuration = require('./configuration.testdata.js');
 
 describe('AfterHandler - Email - EmailHelper - render', function() {
   context('ejs template rendering fails', function() {
@@ -26,7 +44,7 @@ describe('AfterHandler - Email - EmailHelper - render', function() {
         },
       };
       templates.set(template.name, template.compiled);
-      emailHelper = new EmailHelper(templates);
+      emailHelper = new EmailHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration, templates);
       job = {
         nature: {
           type: 'AfterHandler',
@@ -58,7 +76,7 @@ describe('AfterHandler - Email - EmailHelper - render', function() {
         compiled: ejs.compile('hello <%= name %>'),
       };
       templates.set(template.name, template.compiled);
-      emailHelper = new EmailHelper(templates);
+      emailHelper = new EmailHelper(DEFAULTCEMENTHELPER, DEFAULTLOGGER, configuration, templates);
       job = {
         nature: {
           type: 'AfterHandler',
