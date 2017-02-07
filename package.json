@@ -15,7 +15,7 @@
     "url": "git@git.sami.int.thomsonreuters.com:compass/cta-app-scenariodataservice.git"
   },
   "engines": {
-    "node": ">=4.2.2"
+    "node": "6.9.5"
   },
   "devDependencies": {
     "app-root-path": "^1.3.0",
