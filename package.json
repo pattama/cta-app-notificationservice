@@ -8,7 +8,8 @@
     "test": "NODE_PATH=. _mocha",
     "codecoverage": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec",
     "lint": "eslint --quiet lib test",
-    "docs": "jsdoc2md \"lib/**/*.js\" > ./docs/DOCUMENTATION.md && jsdoc --readme README.md lib -r -d docs && opener ./docs/index.html"
+    "docs": "jsdoc2md \"lib/**/*.js\" > ./docs/DOCUMENTATION.md && jsdoc --readme README.md lib -r -d docs && opener ./docs/index.html",
+    "start": "node lib/apps/main/app.js"
   },
   "repository": {
     "type": "git",
