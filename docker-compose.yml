@@ -14,7 +14,7 @@ services:
     build: .
     image: cta-oss/cta-app-notificationservice:compose
     ports:
-      - "3012:3012"
+      - "3006:3006"
     depends_on:
       - rabbitmq
       - sch
