@@ -1,5 +1,5 @@
 # cta-app-notificationservice
-[![build status](https://git.sami.int.thomsonreuters.com/compass/cta-app-executiondataservice/badges/master/build.svg)](https://git.sami.int.thomsonreuters.com/compass/cta-app-executiondataservice/commits/master)[![coverage report](https://git.sami.int.thomsonreuters.com/compass/cta-app-executiondataservice/badges/master/coverage.svg)](https://git.sami.int.thomsonreuters.com/compass/cta-app-executiondataservice/commits/master)
+[![build status](https://git.sami.int.thomsonreuters.com/compass/cta-app-notificationservice/badges/master/build.svg)](https://git.sami.int.thomsonreuters.com/compass/cta-app-notificationservice/commits/master)[![coverage report](https://git.sami.int.thomsonreuters.com/compass/cta-app-notificationservice/badges/master/coverage.svg)](https://git.sami.int.thomsonreuters.com/compass/cta-app-notificationservice/commits/master)
 
 **Notification Service Application(NTS)** for Compass Test Automation, implementing CTA-OSS Framework
 
